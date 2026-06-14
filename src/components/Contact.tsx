@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import type { FormEvent } from 'react';
+import { useForm } from 'react-hook-form';
+import useWeb3Forms from '@web3forms/react';
 import { Mail, MapPin, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
 import { GithubIcon, LinkedinIcon } from './Icons';
 import './Contact.css';
@@ -11,71 +12,32 @@ import './Contact.css';
 // ─────────────────────────────────────────────────────────────────────────────
 const WEB3FORMS_KEY = 'e411f81d-46b8-4b4a-9a8e-1273b22c9c63';
 
-interface FormState {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-}
-
-const INITIAL_FORM: FormState = { name: '', email: '', subject: '', message: '' };
-
 export default function Contact() {
-  const [form, setForm] = useState<FormState>(INITIAL_FORM);
-  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    if (error) setError('');
-  };
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm();
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!form.name || !form.email || !form.message) {
-      setError('Please fill in all required fields.');
-      return;
-    }
-    setLoading(true);
-    setError('');
-
-    try {
-      const payload = new FormData();
-      payload.append('access_key', WEB3FORMS_KEY);
-      payload.append('name',    form.name);
-      payload.append('email',   form.email);
-      payload.append('subject', form.subject || `Portfolio Contact — ${form.name}`);
-      payload.append('message', form.message);
-      payload.append('from_name', 'Muhammad Gouda Portfolio');
-      payload.append('redirect', 'false');
-
-      // Fallback: no key yet → open mailto instead
-      if (WEB3FORMS_KEY === 'e411f81d-46b8-4b4a-9a8e-1273b22c9c63') {
-        const mailto = `mailto:muhammad.gouda.webdev@gmail.com` +
-          `?subject=${encodeURIComponent(`Portfolio Contact — ${form.name}`)}` +
-          `&body=${encodeURIComponent(`From: ${form.name}\nEmail: ${form.email}\nSubject: ${form.subject}\n\n${form.message}`)}`;
-        window.open(mailto, '_blank');
-        setSuccess(true);
-        setForm(INITIAL_FORM);
-        return;
-      }
-
-      const res  = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: payload });
-      const data = await res.json();
-
-      if (data.success) {
-        setSuccess(true);
-        setForm(INITIAL_FORM);
-      } else {
-        throw new Error(data.message || 'Submission failed. Please try again.');
-      }
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { submit } = useWeb3Forms({
+    access_key: WEB3FORMS_KEY,
+    settings: {
+      from_name: 'Muhammad Gouda Portfolio',
+      subject: 'New Contact Message from your Portfolio',
+    },
+    onSuccess: (msg) => {
+      setSuccess(true);
+      setErrorMsg('');
+      reset();
+    },
+    onError: (msg) => {
+      setErrorMsg(msg || 'Something went wrong. Please try again.');
+    },
+  });
 
   const socials = [
     {
@@ -106,6 +68,22 @@ export default function Contact() {
       bg: 'rgba(0,212,255,0.12)',
     },
   ];
+
+  const onSubmit = async (data: any) => {
+    // Graceful fallback if key is not added yet
+    if (WEB3FORMS_KEY === 'YOUR_ACCESS_KEY_HERE') {
+      const mailto = `mailto:muhammad.gouda.webdev@gmail.com` +
+        `?subject=${encodeURIComponent(data.subject || `Portfolio Contact from ${data.name}`)}` +
+        `&body=${encodeURIComponent(`From: ${data.name}\nEmail: ${data.email}\n\n${data.message}`)}`;
+      window.open(mailto, '_blank');
+      setSuccess(true);
+      reset();
+      return;
+    }
+
+    // Official web3forms submit
+    await submit(data);
+  };
 
   return (
     <section id="contact" className="contact section">
@@ -186,16 +164,16 @@ export default function Contact() {
               <>
                 <h3 className="contact__form-title">Send a message</h3>
 
-                {error && (
+                {errorMsg && (
                   <div className="contact__error-banner" role="alert">
                     <AlertCircle size={18} aria-hidden="true" />
-                    {error}
+                    {errorMsg}
                   </div>
                 )}
 
                 <form
                   className="contact__form"
-                  onSubmit={handleSubmit}
+                  onSubmit={handleSubmit(onSubmit)}
                   noValidate
                   aria-label="Contact form"
                 >
@@ -206,14 +184,11 @@ export default function Contact() {
                       </label>
                       <input
                         id="contact-name"
-                        name="name"
                         type="text"
                         className="contact__input"
                         placeholder="Your name"
-                        value={form.name}
-                        onChange={handleChange}
                         autoComplete="name"
-                        required
+                        {...register('name', { required: true })}
                       />
                     </div>
 
@@ -223,14 +198,11 @@ export default function Contact() {
                       </label>
                       <input
                         id="contact-email"
-                        name="email"
                         type="email"
                         className="contact__input"
                         placeholder="your@email.com"
-                        value={form.email}
-                        onChange={handleChange}
                         autoComplete="email"
-                        required
+                        {...register('email', { required: true })}
                       />
                     </div>
                   </div>
@@ -241,12 +213,10 @@ export default function Contact() {
                     </label>
                     <input
                       id="contact-subject"
-                      name="subject"
                       type="text"
                       className="contact__input"
                       placeholder="Project inquiry, collaboration…"
-                      value={form.subject}
-                      onChange={handleChange}
+                      {...register('subject')}
                     />
                   </div>
 
@@ -256,22 +226,19 @@ export default function Contact() {
                     </label>
                     <textarea
                       id="contact-message"
-                      name="message"
                       className="contact__input contact__textarea"
                       placeholder="Tell me about your project or idea…"
-                      value={form.message}
-                      onChange={handleChange}
-                      required
+                      {...register('message', { required: true })}
                     />
                   </div>
 
                   <button
                     id="contact-submit"
                     type="submit"
-                    className={`btn btn-primary contact__submit${loading ? ' loading' : ''}`}
-                    disabled={loading}
+                    className={`btn btn-primary contact__submit${isSubmitting ? ' loading' : ''}`}
+                    disabled={isSubmitting}
                   >
-                    {loading ? (
+                    {isSubmitting ? (
                       <>
                         <span className="contact__spinner" aria-hidden="true" />
                         Sending…
