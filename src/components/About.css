@@ -1,0 +1,240 @@
+.about__inner {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 80px;
+  align-items: start;
+}
+
+/* Image column */
+.about__image-col {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.about__image-frame {
+  position: relative;
+  width: 340px;
+  height: 400px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 2px solid transparent;
+  background: linear-gradient(var(--color-bg-2), var(--color-bg-2)) padding-box,
+              var(--gradient-brand) border-box;
+}
+
+.about__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.about__image-glow {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(to top, rgba(8,12,20,0.8), transparent);
+}
+
+/* Experience badge */
+.about__exp-badge {
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+}
+
+.about__exp-num {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.about__exp-label {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Content */
+.about__content {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.about__bio {
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  line-height: 1.85;
+  margin-bottom: 12px;
+}
+
+.about__bio strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* Highlights */
+.about__highlights {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.about__highlight {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+}
+
+.about__highlight-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background: var(--gradient-brand-subtle);
+  border: 1px solid var(--color-border);
+  color: var(--color-cyan);
+  flex-shrink: 0;
+}
+
+.about__highlight-title {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.about__highlight-desc {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+/* Info grid */
+.about__info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.about__info-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.about__info-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  min-width: 90px;
+}
+
+.about__info-val {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+}
+
+.about__info-link {
+  color: var(--color-cyan);
+  transition: opacity var(--transition-fast);
+}
+
+.about__info-link:hover { opacity: 0.75; }
+
+.about__info-available {
+  color: #4ade80;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.about__info-available::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 8px #4ade80;
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+  .about__inner {
+    grid-template-columns: 1fr;
+    gap: 60px;
+    text-align: center;
+  }
+
+  .about__image-col {
+    justify-content: center;
+  }
+
+  .about__image-frame {
+    width: 280px;
+    height: 320px;
+  }
+
+  .about__exp-badge {
+    right: 0;
+    bottom: -16px;
+  }
+
+  .section-desc {
+    margin: 0 auto;
+  }
+
+  .about__highlight {
+    text-align: left;
+  }
+
+  .about__info-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .about__image-frame {
+    width: 220px;
+    height: 260px;
+  }
+
+  .about__exp-badge {
+    right: 0;
+    bottom: -12px;
+    padding: 12px 14px;
+  }
+
+  .about__exp-num {
+    font-size: 1.5rem;
+  }
+
+  .about__info-val {
+    font-size: 0.8rem;
+    word-break: break-all;
+  }
+}
