@@ -1,4 +1,4 @@
-import { Mail, Heart } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import { GithubIcon, LinkedinIcon } from './Icons';
 import './Footer.css';
 
