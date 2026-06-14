@@ -1,4 +1,5 @@
-import { useState, FormEvent } from 'react';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { Mail, MapPin, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
 import { GithubIcon, LinkedinIcon } from './Icons';
 import './Contact.css';
