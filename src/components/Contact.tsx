@@ -4,6 +4,13 @@ import { Mail, MapPin, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react
 import { GithubIcon, LinkedinIcon } from './Icons';
 import './Contact.css';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 1. Go to https://web3forms.com
+// 2. Enter your email → click "Create Access Key"
+// 3. Copy the key from the email they send you and paste it below
+// ─────────────────────────────────────────────────────────────────────────────
+const WEB3FORMS_KEY = 'e411f81d-46b8-4b4a-9a8e-1273b22c9c63';
+
 interface FormState {
   name: string;
   email: string;
@@ -34,12 +41,37 @@ export default function Contact() {
     setError('');
 
     try {
-      // Simulate network delay — replace with your EmailJS / API call
-      await new Promise((res) => setTimeout(res, 1400));
-      setSuccess(true);
-      setForm(INITIAL_FORM);
-    } catch {
-      setError('Something went wrong. Please try again or reach out directly via email.');
+      const payload = new FormData();
+      payload.append('access_key', WEB3FORMS_KEY);
+      payload.append('name',    form.name);
+      payload.append('email',   form.email);
+      payload.append('subject', form.subject || `Portfolio Contact — ${form.name}`);
+      payload.append('message', form.message);
+      payload.append('from_name', 'Muhammad Gouda Portfolio');
+      payload.append('redirect', 'false');
+
+      // Fallback: no key yet → open mailto instead
+      if (WEB3FORMS_KEY === 'e411f81d-46b8-4b4a-9a8e-1273b22c9c63') {
+        const mailto = `mailto:muhammad.gouda.webdev@gmail.com` +
+          `?subject=${encodeURIComponent(`Portfolio Contact — ${form.name}`)}` +
+          `&body=${encodeURIComponent(`From: ${form.name}\nEmail: ${form.email}\nSubject: ${form.subject}\n\n${form.message}`)}`;
+        window.open(mailto, '_blank');
+        setSuccess(true);
+        setForm(INITIAL_FORM);
+        return;
+      }
+
+      const res  = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: payload });
+      const data = await res.json();
+
+      if (data.success) {
+        setSuccess(true);
+        setForm(INITIAL_FORM);
+      } else {
+        throw new Error(data.message || 'Submission failed. Please try again.');
+      }
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
